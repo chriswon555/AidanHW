@@ -1,7 +1,7 @@
 import java.util.Random;
 import java.util.Scanner;
 import java.time.Clock;
-
+//comment
 public class Arrays {
 	static int SIZE = 100;
 
