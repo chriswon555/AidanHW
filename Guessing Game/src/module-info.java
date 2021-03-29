@@ -1,0 +1,2 @@
+module guessinggame {
+}
