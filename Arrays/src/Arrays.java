@@ -273,33 +273,37 @@ public class Arrays {
 	}
 
 	public static void mergeSort (int[] array, int left, int right) { //If they pick number 11
+		if(left == right) {
+			return;
+		}
+		
 		if (left < right) {
-			int pivot = left + (right - 1)/2;
+			int pivot = (left + right)/2;
 			mergeSort(array,left,pivot);
-			mergeSort(array,pivot+1,right);
+			mergeSort(array,pivot + 1,right);
 			merge(array, left, pivot, right);
 		}
-		//return array;
+		
 	}
 
 	private static void merge (int[] array, int left, int middle, int right) {
-		int pivot = (left + right)/2;
+		int pivot = middle;
 		//Copys Array into a temp Array
-		int [] tempArrayL = new int [pivot];
+		int [] tempArrayL = new int [pivot - left + 1];
 		int [] tempArrayR = new int [right - pivot];
 
-		for(int indexL = 0; indexL < pivot; indexL++) {
+		for(int indexL = 0; indexL < tempArrayL.length; indexL++) {
 			tempArrayL[indexL] = array[left + indexL];
 		}
-		for(int indexR = 0; indexR < right - pivot; indexR++) {
+		for(int indexR = 0; indexR < tempArrayR.length; indexR++) {
 			tempArrayR[indexR] = array[pivot + 1 + indexR];
 		}
 		//Indices of split array and initial array
 		int l = 0; 
-		int r= 0;
-		int arrayI = 0;
+		int r = 0;
+		int arrayI = left;
 
-		while(l < pivot && r < right - pivot) {
+		while(l < tempArrayL.length && r < tempArrayR.length) {
 			if(tempArrayL[l] <= tempArrayR[r]) {
 				array[arrayI] = tempArrayL[l];
 				l++;
@@ -310,13 +314,13 @@ public class Arrays {
 			arrayI++;
 		}
 		//If temp arrays have nothing to compare, they will add whatever values left to the end
-		while(l < pivot) {
+		while(l < tempArrayL.length) {
 			array[arrayI] = tempArrayL[l];
 			l++;
-			arrayI++;
+			arrayI++; 
 		}
 		
-		while(r < right - pivot) {
+		while(r < tempArrayR.length) {
 			array[arrayI] = tempArrayR[r];
 			r++;
 			arrayI++;
