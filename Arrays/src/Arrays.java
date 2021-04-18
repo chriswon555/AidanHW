@@ -1,7 +1,7 @@
 import java.util.Random;
 import java.util.Scanner;
 import java.time.Clock;
-//comment
+
 public class Arrays {
 	static int SIZE = 100;
 
@@ -12,75 +12,78 @@ public class Arrays {
 		int number = 1;
 		int target;
 
-		System.out.println("0. Exit the program");
-		System.out.println("1. Populate the array sequentially from 1-100");
-		System.out.println("2. Populate the array randomly with numbers from 1-100");
-		System.out.println("3. Checks to see if the array is sorted");
-		System.out.println("4. Displays the array");
-		System.out.println("5. Shuffles the array");
-		System.out.println("6. Sequential Search");
-		System.out.println("7. Binary Search");
-		System.out.println("8. Selection Sort");
-		System.out.println("9. Bubble Sort");
-		System.out.println("10. Quick Sort");
-		System.out.println("11. Merge Sort");
-		System.out.print("Pick a number: ");
-
 		while(number != 0) {
+			System.out.println("---------------------------------------------------------");
+			System.out.println("0. Exit the program");
+			System.out.println("1. Populate the array sequentially from 1-100");
+			System.out.println("2. Populate the array randomly with numbers from 1-100");
+			System.out.println("3. Checks to see if the array is sorted");
+			System.out.println("4. Displays the array");
+			System.out.println("5. Shuffles the array");
+			System.out.println("6. Sequential Search");
+			System.out.println("7. Binary Search");
+			System.out.println("8. Selection Sort");
+			System.out.println("9. Bubble Sort");
+			System.out.println("10. Quick Sort");
+			System.out.println("11. Merge Sort");
+			System.out.print("Pick a number: " );
+			
 			number = input.nextInt();
 			long iniTime = Timer.millis();
-
-			if(number == 1) //Populates array randomly
-			{
+			
+			switch (number) {
+			case 1:
 				sequentialArray(array);
-			}
-			if(number == 2) //Populate the array sequentially from 1 to 100
-			{
+				break;
+
+			case 2:
 				randomArray(array);
-			}
-			if(number == 3) //Check if Array is sorted
-			{
-				System.out.println(checkArray(array));
-			}
-			if(number == 4)//Displays Array
-			{
-				displayArray(array);	
-			}
-			if(number == 5) //Shuffles Array
-			{
+				break;
+
+			case 3:
+				System.out.println(isArraySorted(array));
+				break;
+
+			case 4:
+				displayArray(array);
+				break;
+
+			case 5:
 				shuffle(array);
-			}
-			if(number == 6) //Sequentially Searches the Array for a number input by user
-			{
+				break;
+
+			case 6:
 				System.out.print("Please enter a number you would like to find: ");
 				target = input.nextInt();
 				seqSearch(array,target);
-			}
-			if(number == 7) //Binary searches the Array for a number input by user
-			{
+				break;
+
+			case 7:
 				System.out.print("Please enter a number you would like to find: ");
 				target = input.nextInt();
 				binarySearch(array,target);
-			}
-			if(number == 8) //Selection Sort
-			{
+				break;
+
+			case 8:
 				selSort(array);
-			}
-			if(number == 9) //Bubble Sort
-			{
+				break;
+
+			case 9:
 				bubSort(array);
-			}
-			if(number == 10) //Quick Sort
-			{
+				break;
+
+			case 10:
 				quickSort(array,0,SIZE-1);
-			}
-			if(number == 11) //Merge Sort
-			{
+				break;
+
+			case 11:
 				mergeSort(array,0,SIZE-1);
+				break;
+
 			}
-			System.out.println(String.format("Completed in %d milliseconds", (Timer.millis() - iniTime) ));		
+			System.out.println(String.format("\nCompleted in %d milliseconds", (Timer.millis() - iniTime) ));
+			System.out.println("\n");
 		}
-		input.close();
 	}
 
 	public static void sequentialArray (int[] array) {//if they pick number 1
@@ -95,7 +98,7 @@ public class Arrays {
 			array[i] = rand.nextInt(100) + 1; //random # 1-100
 	}
 
-	public static boolean checkArray (int[] array) { //if they pick number 3
+	public static boolean isArraySorted (int[] array) { //if they pick number 3
 		for(int i = 0; i < array.length - 1; i++) {
 			if (array[i] > array[i + 1]) {
 				return false;
@@ -106,18 +109,10 @@ public class Arrays {
 
 
 	public static void displayArray (int[] array) {//if they pick number 4
-		//		String display = "[";
-		//
-		//		for (int i = 0; i < array.length - 1; i++) {
-		//			display += array[i] + ", ";
-		//		}
-		//
-		//		display += array[array.length - 1] + "]";
-		//		System.out.println(display);
-		//Mr.Clark Printing
 		String line;
 		int rLen = (int) Math.sqrt(array.length);
 		int cLen = array.length / rLen;
+		System.out.println("\n------------------------------------");
 		for (int i = 0; i < cLen; i++) {
 			line = "";
 			for (int j = 0; j < rLen; j++) {
@@ -161,27 +156,29 @@ public class Arrays {
 	public static int binarySearch (int[] array, int target) { //If they pick number 7
 		int left = 0;
 		int right = array.length - 1; 
+		
+		if (isArraySorted(array)) { //Checks if Array is sorted before searching
+			
+			do {
+				int mid = (left + right) / 2; //Finds the middle of array 
 
-		do {//Works 100% of the time only when array is fully sorted 
-			int mid = (left + right) / 2; //Finds the middle of array 
+				if(array[mid] == target) { //If they are the same, value is returned
+					System.out.println("The number is in index: " + mid);
+					return mid;	
+				}
 
-			if(array[mid] == target) { //If they are the same, value is returned
-				System.out.println("The number is in index: " + mid);
-				return mid;	
-			}
-
-			if (array[mid] < target) { //Chooses which part of the array to search next
-				left = mid + 1; 
-			} else {  
-				right = mid - 1; 
-			}
-		} while (left <= right); //Continues until the array is of size one
-
-		if (checkArray(array)) {
-			System.out.println(-1);
-			return -1; //If array is sorted but number is not found, it returns "-1"
-		} else {
-			System.out.println(-2); //If array is not sorted is not found, it returns "-2"
+				if (array[mid] < target) { //Chooses which part of the array to search next
+					left = mid + 1; 
+				} else {  
+					right = mid - 1; 
+				}
+			} while (left <= right); //Continues until the array is of size one 
+			
+			//When array is sorted but number is not found, it returns '-1'
+			System.out.println(-1); 
+			return -1;
+		} else { //If array is not sorted and number is not found, it returns '-2'
+			System.out.println(-2); 
 			return -2;
 		}
 	}
@@ -214,14 +211,16 @@ public class Arrays {
 				array[indexBig] = array[right]; //Swaps the numbers through their indices
 				array[right] = biggest; 
 				right--; //When highest number is set, it does not check it again
-			}//Must recheck after, I feel like there is a problem...
+			}
 		}
 		return array;
 	}
 
 	public static int[] bubSort (int[] array) { //If they pick number 9
 		int right = array.length; //Right side scope of Array
-		do {
+		
+		while(true) { //Keeps the sort algorithm going
+			
 			int bigger; //Place holder variable
 			boolean sorted = true;
 			for(int i = 0 ; i < right - 1; i++) {
@@ -237,53 +236,58 @@ public class Arrays {
 			}
 			right--; //After the loop, last number MUST be the biggest number...
 			//therefore the last spot does not need to be swapped again cause it's set
-		}while(right > 1);
+		}
 		return array;
 	}
 
 	public static int[] quickSort (int[] array, int left, int right) { //If they pick number 10
+		if (left == right) { //Base case
+			return array;	
+		}
+		
 		if(left < right) {
-			int p = partition(array,left-1,right+1);//Adds and Subs so that it starts searching at index 0
-			quickSort(array, left, p);
-			quickSort(array, p + 1, right);
+			int part = partition(array,left-1,right+1);//Adds and Subs so that it starts searching at index 0
+			array = quickSort(array, left, part);
+			array = quickSort(array, part + 1, right);
 		}
 		return array;
 	}
 
 	private static int partition (int array[], int left, int right) {
-		int index = left;
-		int j = right;
+		int indexL = left;
+		int indexR = right;
 		int pivot = array[(left + right)/2]; //Picks middle of array as pivot (Rounds down if even)
-		while(true){
-			do {
-				index++;
-			} while (array[index] < pivot);
+		while(true){ //To keep the code running
+			do { 
+				indexL++;
+			} while (array[indexL] < pivot);
 			do{
-				j--;
-			} while (array[j] > pivot);
+				indexR--;
+			} while (array[indexR] > pivot);
 
-			if(index >= j) { 
-				return j;
+			if(indexL >= indexR) { //Once the left side of array is bigger than right
+				return indexR; //It will know that the side is sorted
 			} else {
-				int temp = array[index];
-				array[index] = array[j];
-				array[j] = temp;
+				//Swapping
+				int temp = array[indexL];
+				array[indexL] = array[indexR];
+				array[indexR] = temp;
 			}
 		}
 	}
 
-	public static void mergeSort (int[] array, int left, int right) { //If they pick number 11
-		if(left == right) {
-			return;
+	public static int[] mergeSort (int[] array, int left, int right) { //If they pick number 11
+		if(left == right) { //Base case
+			return array;
 		}
-		
-		if (left < right) {
+
+		if (left < right) { 
 			int pivot = (left + right)/2;
-			mergeSort(array,left,pivot);
-			mergeSort(array,pivot + 1,right);
+			array = mergeSort(array,left,pivot);
+			array = mergeSort(array,pivot + 1,right);
 			merge(array, left, pivot, right);
 		}
-		
+		return array;
 	}
 
 	private static void merge (int[] array, int left, int middle, int right) {
@@ -299,30 +303,30 @@ public class Arrays {
 			tempArrayR[indexR] = array[pivot + 1 + indexR];
 		}
 		//Indices of split array and initial array
-		int l = 0; 
-		int r = 0;
+		int tempLeft = 0; 
+		int tempRight = 0;
 		int arrayI = left;
 
-		while(l < tempArrayL.length && r < tempArrayR.length) {
-			if(tempArrayL[l] <= tempArrayR[r]) {
-				array[arrayI] = tempArrayL[l];
-				l++;
+		while(tempLeft < tempArrayL.length && tempRight < tempArrayR.length) {
+			if(tempArrayL[tempLeft] <= tempArrayR[tempRight]) {
+				array[arrayI] = tempArrayL[tempLeft];
+				tempLeft++;
 			} else {
-				array[arrayI] = tempArrayR[r];
-				r++;
+				array[arrayI] = tempArrayR[tempRight];
+				tempRight++;
 			}		
 			arrayI++;
 		}
 		//If temp arrays have nothing to compare, they will add whatever values left to the end
-		while(l < tempArrayL.length) {
-			array[arrayI] = tempArrayL[l];
-			l++;
+		while(tempLeft < tempArrayL.length) {
+			array[arrayI] = tempArrayL[tempLeft];
+			tempLeft++;
 			arrayI++; 
 		}
-		
-		while(r < tempArrayR.length) {
-			array[arrayI] = tempArrayR[r];
-			r++;
+
+		while(tempRight < tempArrayR.length) {
+			array[arrayI] = tempArrayR[tempRight];
+			tempRight++;
 			arrayI++;
 		}
 	}
