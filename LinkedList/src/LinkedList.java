@@ -1,8 +1,36 @@
-public class LinkedList {
+import java.util.Iterator;
+
+public class LinkedList implements Iterable<Integer> {
+
+	public Iterator<Integer> iterator() {
+		return new LinkedListIterator(this);
+	}
+	private class LinkedListIterator implements Iterator<Integer> {
+		Node Cur;
+
+		private LinkedListIterator(LinkedList list) {
+			this.Cur = list.First;
+		}
+
+		public boolean hasNext() {
+			return (this.Cur != null);
+		}
+
+		public Integer next() {
+			int value = Cur.getValue();
+			Cur = Cur.getNext();
+			return value;
+		}
+	}
 
 	private Node First, Last;
 	private int Length;
 
+	public LinkedList () {
+		this.Length = 0;
+		this.First = null;
+		this.Last = null;
+	}
 	public LinkedList (int num) { //Constructor for number
 		this.Length = 1;
 		this.First = new Node(num,null,null);
@@ -80,29 +108,44 @@ public class LinkedList {
 		this.Last = currentNode.getPrev(); //Switches pointer, setting last node
 		currentNode.setPrev(null);  //The 'old' node now points to nothing from both sides
 		this.Last.setNext(null); //Since the new node is the last, it points to null to the right
-		this.Length -= 1; //Ensures length is correct after removing value ??Length
+		this.Length -= 1; //Ensures length is correct after removing value 
 		return currentNode.getValue();
 	}
 
 	public int pop (int i) { //Removes the value in element i of the list
+		int value = 0;
 		Node currentNode = this.First;
 		Node prevNode = this.First;
 		Node nextNode = this.First;
-		for (int j = 0; j < this.Length; j++) {
+
+		if(i == 0) { //If first element is getting popped
+			value = this.First.getValue();
+			this.First = currentNode.getNext();
+			currentNode.setNext(null);
+			if (this.First != null ) { //If List is empty
+				this.First.setPrev(null);
+			}
+			this.Length -= 1;
+			return value;
+		}
+
+		if(i == this.Length - 1) { //If last element is getting popped
+			return pop();
+		}
+
+		for (int j = 0; j < this.Length; j++) { //Everything but the first and last elements
 			if(i == j) { //When number inside list is the same as target 
-				int value = currentNode.getValue(); //Saves the value inside the element of this list
-				nextNode = nextNode.getNext(); //Gets both previous and next nodes 
-				prevNode = prevNode.getPrev(); 
+				value = currentNode.getValue(); //Saves the value inside the element of this list
+				nextNode = currentNode.getNext(); //Gets both previous and next nodes 
+				prevNode = currentNode.getPrev(); 
 				currentNode.setNext(null); //The node now points to 'null' on both sides
 				currentNode.setPrev(null);
 				nextNode.setPrev(prevNode); //Connects the pointers
 				prevNode.setNext(nextNode);
-				this.Length -= 1; //Reduce length
+				this.Length -= 1; //Reduces length
 				return value;
 			} else { 
-				currentNode = currentNode.getNext(); //Not necessary to have 3 variables?
-				prevNode = prevNode.getNext();
-				nextNode = nextNode.getNext();
+				currentNode = currentNode.getNext();
 			}
 		}
 		return -1; //If an error occurs 
@@ -110,22 +153,21 @@ public class LinkedList {
 
 	public void append (int num) {
 		Node newNode = new Node(num, this.Last, null);
-		this.Last.setNext(newNode);
-		this.Last = newNode;
-		this.Length += 1;
+		if(this.Length != 0) {
+			this.Last.setNext(newNode);
+			this.Last = newNode;
+			this.Length += 1;
+		} else {
+			this.First = newNode;
+			this.Last = this.First;
+			this.Length = 1;
+			return;
+		}
 	}
 
 	public void append (int[] array) {
-		Node currentNode = new Node(array[0],this.Last,null);
-		this.Last.setNext(currentNode);
-		Node newNode = null;
-		for(int i = 1; i < array.length; i++) { 
-			newNode = new Node(array[i],currentNode,null); //After a new node is made...
-			currentNode.setNext(newNode); //Sets previous node to point at the one that is made
-			currentNode = newNode; //Sets the new node made into the current
-		}	
-		this.Last = currentNode;
-		this.Length += array.length;
+		LinkedList temp = new LinkedList(array);
+		append(temp);
 	}
 
 	public void append (LinkedList list) {
@@ -134,28 +176,41 @@ public class LinkedList {
 		this.Length += list.Length;
 	}
 
-	private void swap (int i, int j) { //Rewrite, probably an easier way... Also, does not work for swapping either ends
+	private void swap (int i, int j) { 
 		Node nodeI = this.First;
 		Node nodeJ = this.First;
-		Node leftNodeI = null;
-		Node rightNodeI = null;
-		Node leftNodeJ = null;
-		Node rightNodeJ = null;
+		Node leftNode = null;
+		Node rightNode = null;
 		boolean foundI = false;
 		boolean foundJ = false;
 		for(int counter = 0; counter < this.Length; counter++) {
 			if(counter == i) { //Once element i is found in the list
 				foundI = true;
-				leftNodeI = nodeI.getPrev();
-				rightNodeI = nodeI.getNext();
 			}
 			if(counter == j) { //Once element j is found in the list
 				foundJ = true;
-				leftNodeJ = nodeJ.getPrev();
-				rightNodeJ = nodeJ.getNext();
 			} 
 			if(foundI == true && foundJ == true) {
-				break; //Once both is found, we no longer need to continue searching
+				//When both elements are found... This does the swapping
+				leftNode = nodeJ.getPrev();
+				rightNode = nodeJ.getNext();
+				if(leftNode != null) leftNode.setNext(nodeI);
+				else this.First = nodeI;
+
+				if (rightNode != null) rightNode.setPrev(nodeI);
+				else this.Last = nodeI;
+				
+				nodeJ.setPrev(nodeI.getPrev());
+				nodeJ.setNext(nodeI.getNext());
+				nodeI.setPrev(leftNode);
+				nodeI.setNext(rightNode);
+				
+				if (nodeJ.getPrev() != null) nodeJ.getPrev().setNext(nodeJ);
+				else this.First = nodeJ;
+				
+				if (nodeJ.getNext() != null) nodeJ.getNext().setPrev(nodeJ);
+				else this.Last = nodeJ;
+				return; //Once both is found, we no longer need to continue searching
 			}
 			if(foundI == false) { //As long as element i is not found, it will keep searching
 				nodeI = nodeI.getNext();
@@ -164,21 +219,58 @@ public class LinkedList {
 				nodeJ = nodeJ.getNext();
 			}
 		}
-		//When both elements are found... This does the swapping
-		leftNodeI.setNext(nodeJ);
-		nodeJ.setPrev(leftNodeI);
-		rightNodeI.setPrev(nodeJ);
-		nodeJ.setNext(rightNodeI);
-		leftNodeJ.setNext(nodeI);
-		nodeI.setPrev(leftNodeJ);
-		rightNodeJ.setPrev(nodeI);
-		nodeI.setNext(rightNodeJ);
 	}
 
-	private void sort () {
-		
+	private void sort() {
+		LinkedList sorted = mergeSort(this);
+		this.First = sorted.First;
+		this.Last = sorted.Last;
+		this.Length = sorted.Length;
+		return;
 	}
 
+	private LinkedList mergeSort (LinkedList list) {
+		if(list.Length <= 1) { //Base case
+			return list;
+		}
+		Node midNode = list.First;
+		int midIndex = list.Length / 2;
+		for(int i = 1; i < midIndex; i++) {
+			midNode = midNode.getNext();
+		}
+
+		LinkedList tempLeft = new LinkedList();
+		tempLeft.First = list.First;
+		tempLeft.Last = midNode;
+		tempLeft.Length = midIndex;
+		LinkedList tempRight = new LinkedList();
+		tempRight.First = midNode.getNext();
+		tempRight.Last = list.Last;
+		tempRight.Length = list.Length - tempLeft.Length;
+		tempLeft.Last.setNext(null);
+		tempRight.First.setPrev(null);
+		tempLeft = mergeSort(tempLeft);
+		tempRight = mergeSort(tempRight);
+		return merge(tempLeft, tempRight);
+	}
+
+	private LinkedList merge(LinkedList left, LinkedList right) {
+		LinkedList mergedList = new LinkedList();
+		while(left.First != null && right.First != null) {
+			if(left.First.getValue() <= right.First.getValue()) {
+				mergedList.append(left.pop(0));
+			} else {
+				mergedList.append(right.pop(0));
+			}
+		}
+		while(left.First != null) {
+			mergedList.append(left.pop(0));
+		}
+		while(right.First != null) {
+			mergedList.append(right.pop(0));
+		}
+		return mergedList;
+	}
 	private class Node {
 		private int Value;
 		private Node Prev, Next; //Pointers
@@ -251,29 +343,25 @@ public class LinkedList {
 		LinkedList single = new LinkedList(4);
 		System.out.println("\nThis list should contain only the number 4");
 		System.out.println(single);
-
+		
 		System.out.println("\nTesting get function");
 		System.out.println(String.format("These should be equal: %d = 4", single.get(0)));
-
+		
 		System.out.println("\nTesting Integer Array Constructor");
 		int[] intArray = {356,7,1243,7,53,52,547,2,4,2,467,24};
 		LinkedList arrayList = new LinkedList(intArray);
 		System.out.println("\nThe following lists should be the same");
 		System.out.println(arrayList);
 		System.out.println(arrayString(intArray));
-
+		
 		System.out.println("\nTesting set function");
 		arrayList.set(4,100);
 		System.out.println("\nThe 5th element in the following list should be 100");
 		System.out.println(arrayList);
-
+		
 		System.out.println("\nTesting pointers");
 		checkLinks(arrayList);
-
-//		System.out.println("\nTesting find function");
-//		System.out.println(String.format("These should be equal: %d = 7", arrayList.find(2)));
-//		System.out.println(String.format("These should be equal: %d = -1", arrayList.find(101)));
-
+		
 		System.out.println("\nTesting pop functions");
 		int temp = arrayList.pop();
 		System.out.println("\nThis list should end with 467");
@@ -283,7 +371,7 @@ public class LinkedList {
 		System.out.println("\nThis list should no longer contain the number 1243");
 		System.out.println(arrayList);
 		System.out.println(String.format("These should be equal: %d = 1243",temp));
-
+		
 		System.out.println("\nTesting append functions");
 		arrayList.append(42);
 		System.out.println("\nThe last element in this list below should be 42");
@@ -303,21 +391,21 @@ public class LinkedList {
 		System.out.println("\nTesting find function");
 		System.out.println(String.format("These should be equal: %d = 6", arrayList.find(2)));
 		System.out.println(String.format("These should be equal: %d = -1", arrayList.find(101)));
-
+		
 		System.out.println("\nTesting sort function, the following list should be sorted");
 		arrayList.sort();
 		System.out.println(arrayList);
-
+		
 		System.out.println("\nTesting swap function, the 2nd and 12th elements should have been swapped");
 		arrayList.swap(1, 11);
 		System.out.println(arrayList);
-
+		
 		System.out.println("\nTesting pointers again and checking array length");
 		checkLinks(arrayList);
 		System.out.println(String.format("\nThe following should be equal: %d = 21", arrayList.length()));
-//		for (Integer i: arrayList) {
-//			System.out.println(i);
-//		}
+		for (Integer i: arrayList) {
+			System.out.print(i + " ");
+		}
 	}
 }
 
