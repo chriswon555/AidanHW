@@ -10,10 +10,9 @@ public class MineSweeper {
 	private class Node {
 		Node Down, Up, Right, Left, TopRight, TopLeft, BottomRight, BottomLeft; //Neighbour pointers
 		int NeighbourMine; //# of mines beside the revealed cell 
-		//Counted is for if a cell is already revealed and counted
-		boolean Mine, Flagged, Revealed, counted; 
+		boolean Mine, Flagged, Revealed;
 
-		private Node (boolean mine) { //Constructor
+		private Node () { //Constructor
 			this.NeighbourMine = 0;
 			this.Up = null;
 			this.Down = null;
@@ -22,7 +21,6 @@ public class MineSweeper {
 			this.Mine = false;
 			this.Flagged = false;
 			this.Revealed = false;
-			this.counted = false;
 		}
 
 		public String toString() { 
@@ -34,7 +32,7 @@ public class MineSweeper {
 				//Otherwise it'll be a dot
 				return String.valueOf(".");
 			}
-			if (this.Revealed == this.Mine) { 
+			if (this.Mine) { 
 				return String.valueOf("X");
 			} 
 			//This displays the # of Mines beside the cell revealed by user
@@ -79,10 +77,6 @@ public class MineSweeper {
 		}
 
 		//Getters
-		private int getNeighbourMine() {
-			return this.NeighbourMine;
-		}
-
 		private Node getUp() {
 			return this.Up;
 		}
@@ -138,9 +132,6 @@ public class MineSweeper {
 	}
 
 	public MineSweeper(int n) { 
-		//Generates a random number and then places the number inside one of the nodes in position...
-		//List<Integer> list = IntStream.range(1,Size).boxed().collect(Collectors.toList());
-		//Collections.shuffle(list);
 		this.Size = n * n;
 		int numberOfMines = (int) (Size * 0.15); //# of Mines will always be 15% of the size of board
 		Random generator = new Random();
@@ -151,8 +142,7 @@ public class MineSweeper {
 		//Making and connecting each pointer on the board 
 		for (int i = 0; i < n; i++) { //Rows
 			for (int j = 0; j < n; j++) { //Columns
-
-				newNode = new Node(true);
+				newNode = new Node();
 				if (i == 0 && j == 0) { //First Node
 					this.First = newNode;
 					rowStart = newNode;
@@ -219,29 +209,20 @@ public class MineSweeper {
 	}
 	public void applyMove(Node nodeTemp) { //Uncovering the cells
 		//Base cases:
-		//#1) If the neighbour does not exist
-		if (nodeTemp == null) { 
+		//#1) If its been revealed...
+		if (nodeTemp.Revealed) { 
 			return;
 		}
-		//Keeps track of how many cells have been revealed
-		if(nodeTemp.NeighbourMine != -1 && nodeTemp.counted == false) {  
-			this.counterRevealed++;	//Counts a cell once 
-			nodeTemp.counted = true; //Ensure a cell is not counted twice
-		}
-		//#2) If the neighbour is a mine
-		if (nodeTemp.Mine == true) {
-			nodeTemp.Revealed = true; //It will ONLY reveal the selected cell and no neighbours
-			return;
-		}
+		
+		nodeTemp.Revealed = true; //Must reveal it if its not revealed
+		this.counterRevealed++;	//Keeps track of how many cells have been revealed 
 
-		//#3) If the cell is a number...
-		if(nodeTemp.Revealed == true || nodeTemp.NeighbourMine != 0) {
-			nodeTemp.Revealed = true;
+		//#2) If the cell is a number that is NOT 0 OR it is a mine...
+		if(nodeTemp.Mine == true || nodeTemp.NeighbourMine != 0) {
 			return;
 		}
 
 		//Reveals everything that is 0 and it recursively get its neighbours
-		nodeTemp.Revealed = true;
 		for (Node node : nodeTemp.getNeighbours()) {
 			if (node != null) {
 				applyMove(node); 
@@ -291,7 +272,7 @@ public class MineSweeper {
 		int number;
 		Node tempNode = null;
 		Scanner input = new Scanner(System.in);
-		
+
 		System.out.println("Welcome to MineSweeper");
 		System.out.println("The Number of Mines will be 15% of the size of your board");
 		System.out.println("-----------------------------------------------------------");
@@ -308,14 +289,14 @@ public class MineSweeper {
 			switch(number) {
 			case 1: 
 				//If they choose the Uncover option
-				System.out.print("Enter your which Column: ");
+				System.out.print("Enter which Column: ");
 				column = input.nextInt();
-				System.out.print("Enter your which Row: ");
+				System.out.print("Enter which Row: ");
 				row = input.nextInt();
 				gameBoard.applyMove(gameBoard.location(column, row));
 				tempNode = gameBoard.location(column, row);
 
-				if(tempNode.Revealed == tempNode.Mine) { //When they reveal a mine, they lose...
+				if(tempNode.Mine) { //When they reveal a mine, they lose...
 					//Displays board once more before game ends
 					gameBoard.display(); 
 					System.out.println("\n\n\nYou Hit A Mine, Died, and Lost...");
@@ -324,11 +305,11 @@ public class MineSweeper {
 				break;
 			case 2: 
 				//If they choose the Flag option
-				System.out.print("Enter your which Column: ");
+				System.out.print("Enter which Column: ");
 				column = input.nextInt();
-				System.out.print("Enter your which Row: ");
+				System.out.print("Enter which Row: ");
 				row = input.nextInt();
-				
+
 				//If player flags a cell that is already flagged, it un-flags it
 				tempNode = gameBoard.location(column, row);
 				tempNode.Flagged = !tempNode.Flagged; 
